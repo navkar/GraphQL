@@ -1,7 +1,9 @@
 
 ## Postman
 
-
+| Postman Screenshot 1|
+| --- |
+| ![postman](Screenshots/postman-graphql.PNG?raw=true ) |
 
 ## GraphQL 
 
@@ -100,7 +102,7 @@ namespace GraphQL_SimpleTalk.Queries
 
 The '!' sign says that this parameter is required, otherwise the query won’t work.
 
-```json
+```
 query GetBlogData($id: Int!) {
   author(id: $id) {
     id
