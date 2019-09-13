@@ -136,4 +136,4 @@ query GetBlogData($id: Int!) {
 
 ### References
 
-*[getting-started-with-graphql-in-asp-net](https://www.red-gate.com/simple-talk/dotnet/net-development/getting-started-with-graphql-in-asp-net/)
+* [getting-started-with-graphql-in-asp-net](https://www.red-gate.com/simple-talk/dotnet/net-development/getting-started-with-graphql-in-asp-net/)
