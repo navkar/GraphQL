@@ -1,8 +1,8 @@
-﻿using GraphQL;
-using GraphQL.Types;
-using GraphQL2.Queries;
-using GraphQL2.Services;
+﻿using GraphQL.Server.Internal;
+using GraphQL2.Infrastructure;
+using GraphQL2.Schema;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace GraphQL2.Controllers
@@ -10,26 +10,33 @@ namespace GraphQL2.Controllers
     [Route(Startup.GraphQlPath)]
     public class GraphQlController : Controller
     {
-        readonly BlogService blogService;
-        public GraphQlController(BlogService blogService)
+        private readonly IGraphQLExecuter<FeedsterSchema> _graphQLExecuter;
+        public GraphQlController(IGraphQLExecuter<FeedsterSchema> graphQLExecuter)
         {
-            this.blogService = blogService;
+            _graphQLExecuter = graphQLExecuter ?? throw new ArgumentNullException(nameof(graphQLExecuter));
         }
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] GraphQlQuery query)
         {
-            var schema = new Schema { Query = new AuthorQuery(blogService) };
-            var result = await new DocumentExecuter().ExecuteAsync(x =>
+            try
             {
-                x.Schema = schema;
-                x.Query = query.Query;
-                x.Inputs = query.Variables;
-            });
-            if (result.Errors?.Count > 0)
-            {
-                return BadRequest();
+                var executionResult = await _graphQLExecuter.ExecuteAsync(query.OperationName, query.Query, query.Variables, null);
+
+                if (executionResult.Errors != null)
+                {
+                    return BadRequest(executionResult.Errors);
+                }
+
+                return new GraphQLExecutionResult(executionResult);
             }
-            return Ok(result);
+            catch (GraphQLBadRequestException ex)
+            {
+                return new BadRequestObjectResult(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(new { message = ex.Message });
+            }
         }
     }
 }
